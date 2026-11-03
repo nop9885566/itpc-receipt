@@ -7,7 +7,7 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
   const { q } = await searchParams;
   const supabase = await createClient();
   let query = supabase
-    .from('receipts')
+    .from('itpc_receipt_receipts')
     .select('id, receipt_no, paid_at, payer_name, applicant_code, total, status')
     .order('buddhist_year', { ascending: false })
     .order('seq', { ascending: false })

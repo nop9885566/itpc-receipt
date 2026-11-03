@@ -8,8 +8,8 @@ import NewReceiptForm from './form';
 export default async function NewReceiptPage() {
   const supabase = await createClient();
   const [{ data: items }, { data: cashiers }] = await Promise.all([
-    supabase.from('items').select('*').eq('active', true).order('sort_order'),
-    supabase.from('cashiers').select('id, name_th, name_en').eq('active', true),
+    supabase.from('itpc_receipt_items').select('*').eq('active', true).order('sort_order'),
+    supabase.from('itpc_receipt_cashiers').select('id, name_th, name_en').eq('active', true),
   ]);
   return (
     <>

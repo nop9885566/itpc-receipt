@@ -3,7 +3,7 @@
 -- Run in Supabase SQL editor (or `supabase db push`)
 -- =========================================================
 
-create table public.items (
+create table public.itpc_receipt_items (
   id            serial primary key,
   name          text not null,                 -- name shown in the sales form
   receipt_name  text not null,                 -- name printed on the receipt
@@ -14,7 +14,7 @@ create table public.items (
   sort_order    int not null default 0
 );
 
-create table public.cashiers (
+create table public.itpc_receipt_cashiers (
   id            uuid primary key default gen_random_uuid(),
   name_th       text not null,
   name_en       text not null,
@@ -25,14 +25,14 @@ create table public.cashiers (
 );
 
 -- running number per (Buddhist year, series)
-create table public.receipt_counters (
+create table public.itpc_receipt_receipt_counters (
   buddhist_year int not null,
   series        text not null,
   last_seq      int  not null default 0,
   primary key (buddhist_year, series)
 );
 
-create table public.receipts (
+create table public.itpc_receipt_receipts (
   id             uuid primary key default gen_random_uuid(),
   receipt_no     text not null unique,         -- e.g. 2569-25-0145
   buddhist_year  int  not null,
@@ -57,20 +57,20 @@ create table public.receipts (
   unique (buddhist_year, series, seq)
 );
 
-create table public.receipt_lines (
+create table public.itpc_receipt_receipt_lines (
   id          uuid primary key default gen_random_uuid(),
-  receipt_id  uuid not null references public.receipts(id) on delete restrict,
+  receipt_id  uuid not null references public.itpc_receipt_receipts(id) on delete restrict,
   line_no     int  not null,
-  item_id     int  references public.items(id),
+  item_id     int  references public.itpc_receipt_items(id),
   description text not null,                   -- final printed text, snapshot
   size        text,
   qty         int  not null check (qty > 0),
   unit_price  numeric(10,2) not null,          -- snapshot of price at time of sale
   line_total  numeric(12,2) not null
 );
-create index on public.receipt_lines (receipt_id);
+create index on public.itpc_receipt_receipt_lines (receipt_id);
 
-create table public.audit_log (
+create table public.itpc_receipt_audit_log (
   id         bigserial primary key,
   at         timestamptz not null default now(),
   user_id    uuid,
@@ -82,17 +82,17 @@ create table public.audit_log (
 -- ---------------------------------------------------------
 -- Row Level Security: signed-in staff can read; all writes go through functions
 -- ---------------------------------------------------------
-alter table public.items            enable row level security;
-alter table public.cashiers         enable row level security;
-alter table public.receipt_counters enable row level security;
-alter table public.receipts         enable row level security;
-alter table public.receipt_lines    enable row level security;
-alter table public.audit_log        enable row level security;
+alter table public.itpc_receipt_items            enable row level security;
+alter table public.itpc_receipt_cashiers         enable row level security;
+alter table public.itpc_receipt_receipt_counters enable row level security;
+alter table public.itpc_receipt_receipts         enable row level security;
+alter table public.itpc_receipt_receipt_lines    enable row level security;
+alter table public.itpc_receipt_audit_log        enable row level security;
 
-create policy "staff read items"     on public.items         for select to authenticated using (true);
-create policy "staff read cashiers"  on public.cashiers      for select to authenticated using (true);
-create policy "staff read receipts"  on public.receipts      for select to authenticated using (true);
-create policy "staff read lines"     on public.receipt_lines for select to authenticated using (true);
+create policy "staff read items"     on public.itpc_receipt_items         for select to authenticated using (true);
+create policy "staff read cashiers"  on public.itpc_receipt_cashiers      for select to authenticated using (true);
+create policy "staff read receipts"  on public.itpc_receipt_receipts      for select to authenticated using (true);
+create policy "staff read lines"     on public.itpc_receipt_receipt_lines for select to authenticated using (true);
 -- receipt_counters and audit_log: no policies = no direct access (functions below are SECURITY DEFINER)
 
 -- ---------------------------------------------------------
@@ -118,9 +118,9 @@ declare
   v_seq    int;
   v_id     uuid;
   v_total  numeric(12,2) := 0;
-  v_cash   public.cashiers%rowtype;
+  v_cash   public.itpc_receipt_cashiers%rowtype;
   v_line   jsonb;
-  v_item   public.items%rowtype;
+  v_item   public.itpc_receipt_items%rowtype;
   v_qty    int;
   v_size   text;
   v_desc   text;
@@ -132,17 +132,17 @@ begin
     raise exception 'at least one line required';
   end if;
 
-  select * into v_cash from public.cashiers where id = p_cashier_id and active;
+  select * into v_cash from public.itpc_receipt_cashiers where id = p_cashier_id and active;
   if not found then raise exception 'cashier not found'; end if;
 
   -- atomic running number (row lock held until commit => no gaps from rollbacks, no duplicates)
-  insert into public.receipt_counters (buddhist_year, series, last_seq)
+  insert into public.itpc_receipt_receipt_counters (buddhist_year, series, last_seq)
   values (v_year, p_series, 1)
   on conflict (buddhist_year, series)
-  do update set last_seq = public.receipt_counters.last_seq + 1
+  do update set last_seq = public.itpc_receipt_receipt_counters.last_seq + 1
   returning last_seq into v_seq;
 
-  insert into public.receipts (
+  insert into public.itpc_receipt_receipts (
     receipt_no, buddhist_year, series, seq, paid_at, payer_name, applicant_code, level_name, total,
     cashier_name_th, cashier_name_en, cashier_title_th, cashier_title_en, cashier_signature_url, created_by
   ) values (
@@ -153,7 +153,7 @@ begin
 
   for v_line in select * from jsonb_array_elements(p_lines) loop
     v_n := v_n + 1;
-    select * into v_item from public.items where id = (v_line->>'item_id')::int and active;
+    select * into v_item from public.itpc_receipt_items where id = (v_line->>'item_id')::int and active;
     if not found then raise exception 'item % not found', v_line->>'item_id'; end if;
 
     v_qty  := coalesce((v_line->>'qty')::int, 1);
@@ -169,15 +169,15 @@ begin
       v_desc := v_desc || ' (' || trim(trailing '.' from trim(trailing '0' from v_item.price::text)) || ' * ' || v_qty || ')';
     end if;
 
-    insert into public.receipt_lines (receipt_id, line_no, item_id, description, size, qty, unit_price, line_total)
+    insert into public.itpc_receipt_receipt_lines (receipt_id, line_no, item_id, description, size, qty, unit_price, line_total)
     values (v_id, v_n, v_item.id, v_desc, v_size, v_qty, v_item.price, v_item.price * v_qty);
 
     v_total := v_total + v_item.price * v_qty;
   end loop;
 
-  update public.receipts set total = v_total where id = v_id;
+  update public.itpc_receipt_receipts set total = v_total where id = v_id;
 
-  insert into public.audit_log (user_id, action, receipt_id, detail)
+  insert into public.itpc_receipt_audit_log (user_id, action, receipt_id, detail)
   values (auth.uid(), 'issue', v_id, jsonb_build_object('total', v_total));
 
   return v_id;
@@ -195,12 +195,12 @@ begin
   if auth.uid() is null then raise exception 'not authenticated'; end if;
   if coalesce(trim(p_reason),'') = '' then raise exception 'reason required'; end if;
 
-  update public.receipts
+  update public.itpc_receipt_receipts
      set status = 'cancelled', cancelled_at = now(), cancel_reason = trim(p_reason)
    where id = p_id and status = 'issued';
   if not found then raise exception 'receipt not found or already cancelled'; end if;
 
-  insert into public.audit_log (user_id, action, receipt_id, detail)
+  insert into public.itpc_receipt_audit_log (user_id, action, receipt_id, detail)
   values (auth.uid(), 'cancel', p_id, jsonb_build_object('reason', p_reason));
 end;
 $$;
@@ -224,7 +224,7 @@ begin
   end if;
   return new;
 end $$;
-create trigger receipts_guard_trg before update or delete on public.receipts
+create trigger receipts_guard_trg before update or delete on public.itpc_receipt_receipts
 for each row execute function public.receipts_guard();
 
 create or replace function public.lines_guard() returns trigger language plpgsql as $$
@@ -232,5 +232,5 @@ begin
   if tg_op in ('UPDATE','DELETE') then raise exception 'receipt lines are immutable'; end if;
   return new;
 end $$;
-create trigger lines_guard_trg before update or delete on public.receipt_lines
+create trigger lines_guard_trg before update or delete on public.itpc_receipt_receipt_lines
 for each row execute function public.lines_guard();

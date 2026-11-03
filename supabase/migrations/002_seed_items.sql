@@ -1,6 +1,6 @@
 -- Seed from ขายของ.xlsx (15 items).
 -- ASSUMPTIONS to review: which items require a size, and which print "(price * qty)".
-insert into public.items (sort_order, name, receipt_name, price, requires_size, show_formula) values
+insert into public.itpc_receipt_items (sort_order, name, receipt_name, price, requires_size, show_formula) values
  (1,  'ค่าเสื้อพลศึกษา',                         'เสื้อพลศึกษา',                         300, true,  true),
  (2,  'ค่ากางเกงพลศึกษา ประถมศึกษา',            'กางเกงพลศึกษา ระดับชั้นประถมศึกษา',    360, true,  true),
  (3,  'ค่ากางเกงพลศึกษา อนุบาล',                'กางเกงพลศึกษา ระดับชั้นอนุบาล',         330, true,  true),
@@ -18,4 +18,4 @@ insert into public.items (sort_order, name, receipt_name, price, requires_size, 
  (15, 'ถุงเท้านักเรียน',                         'ถุงเท้านักเรียน',                      60,  true,  true);
 
 -- Add your cashier (signature_url = public URL of the signature image in Supabase Storage)
--- insert into public.cashiers (name_th, name_en) values ('นางสาวรุ่งฟ้า สุริยา', 'MISS.RUNGFA SURIYA');
+-- insert into public.itpc_receipt_cashiers (name_th, name_en) values ('นางสาวรุ่งฟ้า สุริยา', 'MISS.RUNGFA SURIYA');

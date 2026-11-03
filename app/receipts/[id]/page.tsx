@@ -9,7 +9,11 @@ import type { Receipt } from '@/lib/types';
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data } = await supabase.from('receipts').select('*, receipt_lines(*)').eq('id', id).single();
+  const { data } = await supabase
+    .from('itpc_receipt_receipts')
+    .select('*, receipt_lines:itpc_receipt_receipt_lines(*)')
+    .eq('id', id)
+    .single();
   if (!data) notFound();
   const receipt = data as Receipt;
 

@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
 
   const supabase = await createClient();
-  const { data } = await supabase.from('receipts').select('receipt_no').eq('id', id).single();
+  const { data } = await supabase.from('itpc_receipt_receipts').select('receipt_no').eq('id', id).single();
   if (!data) return new NextResponse('Not found', { status: 404 });
 
   const url = new URL(request.url);

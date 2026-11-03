@@ -1,7 +1,7 @@
 # ระบบออกใบเสร็จรับเงิน (Next.js + Supabase + HTML→PDF)
 
 ## ติดตั้ง
-1. สร้างโปรเจกต์ Supabase แล้วรันไฟล์ใน `supabase/migrations/` ตามลำดับ (001 → 002) ที่ SQL Editor
+1. สร้างโปรเจกต์ Supabase แล้วรันไฟล์ใน `supabase/migrations/` ตามลำดับ (001 → 002) ที่ SQL Editor ตารางจะใช้ prefix `itpc_receipt_` (แทน `itpc-receipt-` เนื่องจากชื่อ identifier ใน PostgreSQL ใช้ขีดกลางไม่ได้โดยไม่ใส่เครื่องหมายคำพูด)
 2. เพิ่มผู้รับเงิน (ลายเซ็นอัปโหลดเป็นรูปใน Storage bucket แบบ public แล้วใส่ URL ใน `signature_url`):
    ```sql
    insert into public.cashiers (name_th, name_en, signature_url)

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { createClient } from '@/lib/supabase/server';
 import { bilingualDate, money } from '@/lib/format';
+import DeleteReceiptButton from '@/components/DeleteReceiptButton';
+import CancelButton from '@/components/CancelButton';
 
 export default async function ReceiptsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
@@ -16,7 +18,10 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
     const safe = q.replace(/[,()%]/g, ' ');
     query = query.or(`receipt_no.ilike.%${safe}%,payer_name.ilike.%${safe}%,applicant_code.ilike.%${safe}%`);
   }
-  const { data, error } = await query;
+  const [{ data, error }, { data: isAdmin, error: adminError }] = await Promise.all([
+    query,
+    supabase.rpc('is_receipt_admin'),
+  ]);
 
   return (
     <>
@@ -27,9 +32,10 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
           <button className="btn" type="submit">ค้นหา</button>
         </form>
         {error && <p className="error">{error.message}</p>}
+        {adminError && <p className="error">ตรวจสอบสิทธิ์แอดมินไม่สำเร็จ: {adminError.message}</p>}
         <table className="list">
           <thead>
-            <tr><th>เลขที่</th><th>วันที่</th><th>ผู้ชำระ</th><th>รหัส</th><th className="r">ยอดรวม</th><th>สถานะ</th></tr>
+            <tr><th>เลขที่</th><th>วันที่</th><th>ผู้ชำระ</th><th>รหัส</th><th className="r">ยอดรวม</th><th>สถานะ</th><th>จัดการ</th></tr>
           </thead>
           <tbody>
             {(data ?? []).map((r) => (
@@ -40,6 +46,13 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
                 <td>{r.applicant_code}</td>
                 <td className="r">{money(r.total)}</td>
                 <td><span className={`badge ${r.status}`}>{r.status === 'issued' ? 'ออกแล้ว' : 'ยกเลิก'}</span></td>
+                <td>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <a className="btn" href={`/receipts/${r.id}/pdf`}>ดาวน์โหลด PDF</a>
+                    {r.status === 'issued' && <CancelButton id={r.id} />}
+                    {isAdmin && <DeleteReceiptButton id={r.id} receiptNo={r.receipt_no} />}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

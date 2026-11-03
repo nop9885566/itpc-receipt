@@ -2,14 +2,14 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Cashier, Item } from '@/lib/types';
+import type { Cashier, Item, Student } from '@/lib/types';
 import { money } from '@/lib/format';
 import { issueReceipt } from './actions';
 
 type Line = { key: number; item_id: number | ''; size: string; qty: number };
 
-export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier[]; today: string; defaultSeries: string }) {
-  const { items, cashiers } = props;
+export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier[]; students: Student[]; studentLoadError?: string; today: string; defaultSeries: string }) {
+  const { items, cashiers, students } = props;
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
@@ -17,12 +17,37 @@ export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier
   const [payerName, setPayerName] = useState('');
   const [applicantCode, setApplicantCode] = useState('');
   const [levelName, setLevelName] = useState('');
+  const [studentSearch, setStudentSearch] = useState('');
+  const [selectedStudentId, setSelectedStudentId] = useState('');
   const [cashierId, setCashierId] = useState(cashiers[0]?.id ?? '');
   const [series, setSeries] = useState(props.defaultSeries);
   const [lines, setLines] = useState<Line[]>([{ key: 1, item_id: '', size: '', qty: 1 }]);
 
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
   const total = lines.reduce((s, l) => s + (l.item_id ? (byId.get(l.item_id)?.price ?? 0) * l.qty : 0), 0);
+
+  function chooseStudent(value: string) {
+    setStudentSearch(value);
+    const student = students.find((s) => (
+      value === s.student_id
+      || value === `${s.student_id} - ${s.title_th}${s.first_name_th} ${s.last_name_th}`
+      || value === `${s.title_th}${s.first_name_th} ${s.last_name_th}`
+      || value === `${s.first_name_th} ${s.last_name_th}`
+    ));
+    if (!student) {
+      if (selectedStudentId) {
+        setSelectedStudentId('');
+        setPayerName('');
+        setApplicantCode('');
+        setLevelName('');
+      }
+      return;
+    }
+    setSelectedStudentId(student.student_id);
+    setPayerName(`${student.title_th}${student.first_name_th} ${student.last_name_th}`);
+    setApplicantCode(student.student_id);
+    setLevelName(student.grade);
+  }
 
   const update = (key: number, patch: Partial<Line>) =>
     setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
@@ -49,9 +74,28 @@ export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier
   return (
     <form onSubmit={submit}>
       <div className="card">
+        {props.studentLoadError && <p className="error">โหลดข้อมูลนักเรียนไม่สำเร็จ: {props.studentLoadError}</p>}
         <div className="grid2">
+          <div>
+            <label htmlFor="student-search">ค้นหานักเรียน (รหัสหรือชื่อ)</label>
+            <input
+              id="student-search"
+              list="student-options"
+              value={studentSearch}
+              onChange={(e) => chooseStudent(e.target.value)}
+              placeholder="พิมพ์รหัสนักเรียนหรือชื่อเพื่อเลือก"
+            />
+            <datalist id="student-options">
+              {students.map((student) => (
+                <option
+                  key={student.student_id}
+                  value={`${student.student_id} - ${student.title_th}${student.first_name_th} ${student.last_name_th}`}
+                />
+              ))}
+            </datalist>
+          </div>
           <div><label>ได้รับเงินจาก (ชื่อผู้ชำระ)</label><input value={payerName} onChange={(e) => setPayerName(e.target.value)} required /></div>
-          <div><label>เลขรหัสผู้สมัคร</label><input value={applicantCode} onChange={(e) => setApplicantCode(e.target.value)} /></div>
+          <div><label>รหัสนักเรียน (รหัสผู้สมัคร)</label><input value={applicantCode} onChange={(e) => setApplicantCode(e.target.value)} /></div>
           <div><label>ระดับชั้น</label><input value={levelName} onChange={(e) => setLevelName(e.target.value)} placeholder="เช่น ระดับชั้นอนุบาล 1" /></div>
           <div><label>วันที่ชำระ</label><input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} required /></div>
           <div>

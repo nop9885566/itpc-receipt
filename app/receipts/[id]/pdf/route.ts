@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
+export const dynamic = 'force-dynamic';
 
 // Opens the real receipt page in headless Chrome (forwarding the user's login cookies)
 // and prints it to PDF. The toolbar is hidden by the @media print rules.
@@ -43,7 +44,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="receipt-${data.receipt_no}.pdf"`,
+        'Cache-Control': 'no-store',
+        'Content-Disposition': `attachment; filename="receipt-${data.receipt_no}.pdf"`,
       },
     });
   } finally {

@@ -5,10 +5,10 @@ async function login(formData: FormData) {
   'use server';
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: String(formData.get('email')),
+    email: String(formData.get('email')).trim(),
     password: String(formData.get('password')),
   });
-  if (error) redirect('/login?error=1');
+  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
   redirect('/receipts');
 }
 
@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div style={{ height: 12 }} />
         <label htmlFor="password">รหัสผ่าน</label>
         <input id="password" name="password" type="password" required />
-        {error && <p className="error">อีเมลหรือรหัสผ่านไม่ถูกต้อง</p>}
+        {error && <p className="error">{error}</p>}
         <div style={{ height: 12 }} />
         <button className="btn" type="submit">เข้าสู่ระบบ</button>
       </form>

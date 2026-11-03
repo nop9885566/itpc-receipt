@@ -3,6 +3,9 @@ export type Item = {
   requires_size: boolean; show_formula: boolean; active: boolean; sort_order: number;
 };
 export type Cashier = { id: string; name_th: string; name_en: string };
+export type Student = {
+  student_id: string; title_th: string; first_name_th: string; last_name_th: string; grade: string;
+};
 export type ReceiptLine = {
   id: string; line_no: number; description: string; size: string | null;
   qty: number; unit_price: number; line_total: number;

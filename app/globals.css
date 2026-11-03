@@ -1,0 +1,21 @@
+body { margin: 0; font-family: 'Sarabun', system-ui, sans-serif; color: #111; background: #f6f6f6; }
+a { color: #4b2e83; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+.nav { display: flex; gap: 16px; align-items: center; padding: 12px 16px; background: #4b2e83; color: #fff; }
+.nav a { color: #fff; text-decoration: none; }
+.nav form { margin-left: auto; }
+.card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+input, select, textarea { width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 6px; font: inherit; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn { display: inline-block; padding: 8px 16px; border: 0; border-radius: 6px; background: #4b2e83; color: #fff; font: inherit; cursor: pointer; text-decoration: none; }
+.btn.secondary { background: #666; }
+.btn.danger { background: #b00020; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+table.list { width: 100%; border-collapse: collapse; background: #fff; }
+table.list th, table.list td { padding: 8px; border-bottom: 1px solid #e5e5e5; text-align: left; }
+table.list td.r, table.list th.r { text-align: right; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; background: #e6f4ea; color: #137333; }
+.badge.cancelled { background: #fce8e6; color: #b00020; }
+.error { color: #b00020; margin: 8px 0; }
+.toolbar { display: flex; gap: 8px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #ddd; align-items: center; }

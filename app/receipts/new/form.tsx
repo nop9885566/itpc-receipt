@@ -2,13 +2,23 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Cashier, Item, Student } from '@/lib/types';
+import type { Cashier, Item, StockBalance, Student } from '@/lib/types';
 import { money } from '@/lib/format';
 import { issueReceipt } from './actions';
 
 type Line = { key: number; item_id: number | ''; size: string; qty: number };
 
-export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier[]; students: Student[]; studentLoadError?: string; today: string; defaultSeries: string }) {
+export default function NewReceiptForm(props: {
+  items: Item[];
+  itemLoadError?: string;
+  stockBalances: StockBalance[];
+  stockLoadError?: string;
+  cashiers: Cashier[];
+  students: Student[];
+  studentLoadError?: string;
+  today: string;
+  defaultSeries: string;
+}) {
   const { items, cashiers, students } = props;
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -74,6 +84,8 @@ export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier
   return (
     <form onSubmit={submit}>
       <div className="card">
+        {props.itemLoadError && <p className="error">โหลดรายการสินค้าไม่สำเร็จ: {props.itemLoadError}</p>}
+        {props.stockLoadError && <p className="error">โหลดสต็อกไม่สำเร็จ: {props.stockLoadError}</p>}
         {props.studentLoadError && <p className="error">โหลดข้อมูลนักเรียนไม่สำเร็จ: {props.studentLoadError}</p>}
         <div className="grid2">
           <div>
@@ -117,8 +129,20 @@ export default function NewReceiptForm(props: { items: Item[]; cashiers: Cashier
                 <label>รายการ</label>
                 <select value={l.item_id} onChange={(e) => update(l.key, { item_id: e.target.value ? Number(e.target.value) : '' })}>
                   <option value="">-- เลือกรายการ --</option>
-                  {items.map((i) => <option key={i.id} value={i.id}>{i.name} ({money(i.price)})</option>)}
+                  {items.map((i) => <option key={i.id} value={i.id}>
+                    {i.name} ({money(i.price)}){i.stock_tracked ? ' · ติดตามสต็อก' : ''}
+                  </option>)}
                 </select>
+                {it?.stock_tracked && (
+                  <small>
+                    {it.requires_size
+                      ? l.size.trim()
+                        ? `คงเหลือไซส์ ${l.size.trim()}: ${props.stockBalances.find((stock) => stock.item_id === it.id && stock.size === l.size.trim())?.quantity ?? 0}`
+                        : 'กรุณาระบุไซส์เพื่อดูยอดคงเหลือ'
+                      : `คงเหลือ: ${props.stockBalances.find((stock) => stock.item_id === it.id && stock.size === '')?.quantity ?? 0}`}
+                  </small>
+                )}
+                {it && !it.stock_tracked && <small>ไม่ได้ติดตามสต็อก</small>}
               </div>
               <div>
                 <label>ไซส์{it?.requires_size ? ' *' : ''}</label>

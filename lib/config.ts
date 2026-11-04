@@ -7,7 +7,7 @@ export const ISSUER = {
   unitAddressTh: ['239 ถนนห้วยแก้ว ตำบลสุเทพ', 'อำเภอเมือง จังหวัดเชียงใหม่ 50200', 'โทรศัพท์ 053-941237 ต่อ 13'],
   logoPath: '/logo.jpg',
   watermarkLogoPath: '/logo2.jpg',
-  signaturePath: '/signature.jpg',
+  signaturePath: '/signature-transparent.png',
 };
 
 export const DEFAULT_SERIES = '25'; // the middle part of 2569-25-0145

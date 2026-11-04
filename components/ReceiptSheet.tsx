@@ -18,10 +18,10 @@ export const RECEIPT_CSS = `
 .rc-title { text-align: center; font-weight: 700; font-size: 16px; margin: -41px 0 32px; }
 .rc-meta { display: flex; flex-direction: column; margin-bottom: 18px; }
 .rc-meta-row { display: grid; grid-template-columns: 225px 1fr auto; align-items: baseline; }
-.rc-meta-row.payment { grid-template-columns: 200px 1fr auto; margin-bottom: 46px; }
-.rc-meta-row.payer, .rc-meta-row.student { grid-template-columns: 225px 1fr auto; }
-.rc-meta-row.student { margin-top: 6px; }
-.rc-meta-row.print-date { grid-template-columns: 225px 1fr auto; margin-top: 22px; }
+.rc-meta-row.payment, .rc-meta-row.payer, .rc-meta-row.print-date { grid-template-columns: max-content 1fr auto; column-gap: 6px; }
+.rc-meta-row.payment { margin-bottom: 46px; }
+.rc-meta-row.print-date { margin-top: 22px; }
+.rc-payer-details > div + div { margin-top: 6px; }
 .rc-meta .lbl { font-weight: 700; }
 .rc-meta .no { text-align: right; font-weight: 400; }
 .rc-meta .no b { font-weight: 700; }
@@ -35,11 +35,13 @@ export const RECEIPT_CSS = `
 .rc-total .row { display: flex; justify-content: space-between; font-weight: 400; }
 .rc-total .words-th { margin-left: 100px; }
 .rc-total .words-en { margin: 14px 0 0 100px; font-weight: 400; }
-.rc-sign { text-align: center; margin-top: 48px; }
+.rc-sign { text-align: center; margin-top: 64px; }
 .rc-sign img { width: 160px; height: 70px; object-fit: contain; display: block; margin: 0 auto 2px; }
 .rc-sign .blank { height: 48px; }
-.rc-foot { position: absolute; left: 14mm; right: 14mm; bottom: 10mm; font-size: 14px; line-height: 1.35; }
+.rc-foot { position: absolute; left: 14mm; right: 14mm; bottom: 10mm; font-size: 13px; line-height: 1.5; }
 .rc-foot p { margin: 3px 0; }
+.rc-foot .note { padding-left: 15mm; text-indent: -15mm; }
+.rc-foot .translation { margin-left: 15mm; }
 .rc-watermark { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: 72px; font-weight: 700; color: rgba(200,0,0,.18); transform: rotate(-20deg); pointer-events: none; }
 @media screen { .rc-page { box-shadow: 0 1px 6px rgba(0,0,0,.25); } body { background: #e5e5e5; } }
 @media print { body { background: #fff; } .no-print { display: none !important; } .rc-page { margin: 0; box-shadow: none; } }
@@ -78,16 +80,12 @@ function Page({ r, copyLabel }: { r: Receipt; copyLabel: string }) {
         </div>
         <div className="rc-meta-row payer">
           <div className="lbl">ได้รับเงินจาก / Received from :</div>
-          <div>{r.payer_name}</div>
+          <div className="rc-payer-details">
+            <div>{r.payer_name}</div>
+            {r.applicant_code && <div>เลขประจำตัวนักเรียน {r.applicant_code}</div>}
+          </div>
           <div className="no">{r.level_name?.replace(/^ป\.\s*/, 'ระดับชั้นประถมศึกษา ') ?? ''}</div>
         </div>
-        {r.applicant_code && (
-          <div className="rc-meta-row student">
-            <div />
-            <div>เลขประจำตัวนักเรียน {r.applicant_code}</div>
-            <div />
-          </div>
-        )}
         <div className="rc-meta-row print-date">
           <div className="lbl">วันที่พิมพ์ / Print Date :</div>
           <div>{bilingualDate(r.created_at.slice(0, 10))}</div>
@@ -130,9 +128,9 @@ function Page({ r, copyLabel }: { r: Receipt; copyLabel: string }) {
       <div className="rc-foot">
         <p>ใบเสร็จรับเงินจะมีผลสมบูรณ์ต่อเมื่อได้รับชำระเงินเรียบร้อยแล้วและมีลายเซ็นของผู้รับเงินครบถ้วน<br />
           The receipt will be valid with payment and the signature of the collector.</p>
-        <p>หมายเหตุ : มหาวิทยาลัยเชียงใหม่ได้รับอนุมัติจากกรมบัญชีกลางให้ใช้ลายเซ็นอิเล็กทรอนิกส์ในใบเสร็จรับเงินค่าใช้จ่ายเกี่ยวกับการศึกษาได้
-          ตามหนังสือที่ กค 0422.3/ว.130 ลงวันที่ 19 พฤศจิกายน 2556<br />
-          Refer to the comptroller General’s Department’s reference no.0422.3/c.130, dated 19 November 2013,<br />
+        <p className="note">หมายเหตุ : มหาวิทยาลัยเชียงใหม่ได้รับอนุมัติจากกรมบัญชีกลางให้ใช้ลายเซ็นอิเล็กทรอนิกส์ในใบเสร็จรับเงินค่าใช้จ่ายเกี่ยวกับการศึกษาได้
+          ตามหนังสือที่ กค 0422.3/ว.130 ลงวันที่ 19 พฤศจิกายน 2556</p>
+        <p className="translation">Refer to the comptroller General’s Department’s reference no.0422.3/c.130, dated 19 November 2013,<br />
           Chiang Mai University has been authorized to place an electronic signature onto a receipt that is relate education.</p>
       </div>
     </section>

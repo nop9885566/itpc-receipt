@@ -1,6 +1,13 @@
 export type Item = {
   id: number; name: string; receipt_name: string; price: number;
   requires_size: boolean; show_formula: boolean; active: boolean; sort_order: number;
+  stock_tracked: boolean;
+};
+export type StockBalance = { item_id: number; size: string; quantity: number };
+export type StockMovement = {
+  id: number; at: string; item_id: number; size: string; action: string;
+  change_qty: number; quantity_before: number; quantity_after: number;
+  receipt_id: string | null; note: string | null;
 };
 export type Cashier = { id: string; name_th: string; name_en: string };
 export type Student = {

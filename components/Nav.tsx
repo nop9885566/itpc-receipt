@@ -15,6 +15,7 @@ export default function Nav() {
       <strong>ใบเสร็จรับเงิน</strong>
       <Link href="/receipts">รายการใบเสร็จ</Link>
       <Link href="/receipts/new">ออกใบเสร็จใหม่</Link>
+      <Link href="/inventory">จัดการสต็อก</Link>
       <form action={logout}><button className="btn secondary" type="submit">ออกจากระบบ</button></form>
     </nav>
   );

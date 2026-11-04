@@ -27,7 +27,6 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
   const receipts = data ?? [];
   const issuedCount = receipts.filter((receipt) => receipt.status === 'issued').length;
   const cancelledCount = receipts.length - issuedCount;
-  const visibleTotal = receipts.reduce((sum, receipt) => sum + Number(receipt.total), 0);
 
   return (
     <>
@@ -40,7 +39,7 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
           icon="receipt"
           action={<Link className="btn" href="/receipts/new"><AppIcon name="plus" size={18} /> ออกใบเสร็จใหม่</Link>}
         />
-        <div className="summary-grid">
+        <div className="summary-grid receipt-summary-grid">
           <div className="summary-card">
             <span className="summary-icon"><AppIcon name="receipt" /></span>
             <span className="summary-copy"><span className="summary-label">ใบเสร็จที่แสดง</span><strong className="summary-value">{receipts.length}<span className="summary-unit">รายการ</span></strong></span>
@@ -48,10 +47,6 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
           <div className="summary-card">
             <span className="summary-icon"><AppIcon name="check" /></span>
             <span className="summary-copy"><span className="summary-label">ออกแล้ว</span><strong className="summary-value">{issuedCount}<span className="summary-unit">รายการ</span></strong></span>
-          </div>
-          <div className="summary-card">
-            <span className="summary-icon"><AppIcon name="arrow" /></span>
-            <span className="summary-copy"><span className="summary-label">ยอดรวมที่แสดง</span><strong className="summary-value">{money(visibleTotal)}<span className="summary-unit">บาท</span></strong></span>
           </div>
         </div>
         <form className="search-panel">

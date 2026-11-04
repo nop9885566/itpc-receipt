@@ -235,6 +235,7 @@ table.list td .btn { margin: 2px 0; }
 .table-primary-link:hover { text-decoration: underline; }
 
 .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 20px; }
+.receipt-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .summary-card { display: flex; min-height: 105px; align-items: center; gap: 14px; padding: 17px 19px; background: #fff; border: 1px solid var(--line); border-radius: 4px; }
 .summary-card:nth-child(3n + 1) .summary-icon { background: var(--accent-pale); color: var(--accent-dark); }
 .summary-card:nth-child(3n + 2) .summary-icon { background: var(--mint); color: var(--mint-ink); }

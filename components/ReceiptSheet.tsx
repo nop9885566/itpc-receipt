@@ -9,32 +9,33 @@ export const RECEIPT_CSS = `
 .rc-doc { font-family: 'Sarabun', 'TH Sarabun New', 'Noto Sans Thai', sans-serif; color: #111; font-size: 13px; font-weight: 400; line-height: 1.5; }
 .rc-page { position: relative; isolation: isolate; width: 210mm; height: 297mm; padding: 14mm 14mm 10mm; margin: 0 auto 8mm; background: #fff; overflow: hidden; page-break-after: always; }
 .rc-page:last-child { page-break-after: auto; }
-.rc-watermark-logo { position: absolute; z-index: -1; top: 62%; left: 50%; width: 170mm; height: 170mm; object-fit: contain; opacity: .7; transform: translate(-50%, -50%); pointer-events: none; }
+.rc-watermark-logo { position: absolute; z-index: -1; top: 44%; left: 50%; width: 170mm; height: 170mm; object-fit: contain; opacity: .7; transform: translate(-50%, -50%); pointer-events: none; }
 .rc-head { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: start; }
 .rc-head .l, .rc-head .r { display: flex; flex-direction: column; gap: 1.5mm; padding-top: 5mm; font-size: 14px; line-height: 1.5; }
 .rc-head .r { align-items: flex-end; text-align: right; }
 .rc-head .r b, .rc-head .l b { font-weight: 700; }
 .rc-logo { width: 110px; height: 110px; margin: -6mm auto 0; object-fit: contain; }
-.rc-title { text-align: center; font-weight: 700; font-size: 16px; margin: 6px 0 24px; }
+.rc-title { text-align: center; font-weight: 700; font-size: 16px; margin: -41px 0 32px; }
 .rc-meta { display: flex; flex-direction: column; margin-bottom: 18px; }
 .rc-meta-row { display: grid; grid-template-columns: 225px 1fr auto; align-items: baseline; }
-.rc-meta-row.payment { margin-bottom: 0; }
+.rc-meta-row.payment { grid-template-columns: 200px 1fr auto; margin-bottom: 46px; }
+.rc-meta-row.payer, .rc-meta-row.student { grid-template-columns: 225px 1fr auto; }
 .rc-meta-row.student { margin-top: 6px; }
-.rc-meta-row.print-date { margin-top: 22px; }
+.rc-meta-row.print-date { grid-template-columns: 225px 1fr auto; margin-top: 22px; }
 .rc-meta .lbl { font-weight: 700; }
 .rc-meta .no { text-align: right; font-weight: 400; }
 .rc-meta .no b { font-weight: 700; }
 .rc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.rc-table th { text-align: left; padding: 8px 4px; border-top: 1px solid #888; border-bottom: 1px solid #888; font-weight: 400; }
+.rc-table th { text-align: left; padding: 8px 4px 16px; border-top: 1px solid #888; border-bottom: 1px solid #888; font-weight: 400; }
 .rc-table th.amt, .rc-table td.amt { text-align: right; }
 .rc-table td { padding: 2px 4px; vertical-align: top; }
 .rc-table td.n { width: 100px; text-align: center; }
-.rc-lines { height: 75px; }
-.rc-total { border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 10px 4px 12px; margin-top: 8px; }
+.rc-lines { height: 100px; }
+.rc-total { border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 5px 4px 6px; margin-top: 8px; }
 .rc-total .row { display: flex; justify-content: space-between; font-weight: 400; }
 .rc-total .words-th { margin-left: 100px; }
 .rc-total .words-en { margin: 14px 0 0 100px; font-weight: 400; }
-.rc-sign { text-align: center; margin-top: 12px; }
+.rc-sign { text-align: center; margin-top: 48px; }
 .rc-sign img { width: 160px; height: 70px; object-fit: contain; display: block; margin: 0 auto 2px; }
 .rc-sign .blank { height: 48px; }
 .rc-foot { position: absolute; left: 14mm; right: 14mm; bottom: 10mm; font-size: 14px; line-height: 1.35; }
@@ -78,7 +79,7 @@ function Page({ r, copyLabel }: { r: Receipt; copyLabel: string }) {
         <div className="rc-meta-row payer">
           <div className="lbl">ได้รับเงินจาก / Received from :</div>
           <div>{r.payer_name}</div>
-          <div className="no">{r.level_name ?? ''}</div>
+          <div className="no">{r.level_name?.replace(/^ป\.\s*/, 'ระดับชั้นประถมศึกษา ') ?? ''}</div>
         </div>
         {r.applicant_code && (
           <div className="rc-meta-row student">

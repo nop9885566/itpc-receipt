@@ -1,0 +1,9 @@
+UPDATE auth.users
+SET raw_user_meta_data = jsonb_set(
+  COALESCE(raw_user_meta_data, '{}'::jsonb),
+  '{display_name}',
+  to_jsonb('แอดมิน'::text),
+  true
+)
+WHERE email = 'admin@gmail.com'
+RETURNING email, raw_user_meta_data ->> 'display_name' AS display_name;

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type AppIconName = 'receipt' | 'box' | 'plus' | 'search' | 'download' | 'arrow' | 'calendar' | 'check';
+export type AppIconName = 'receipt' | 'box' | 'plus' | 'search' | 'download' | 'arrow' | 'calendar' | 'check' | 'camera';
 
 const paths: Record<AppIconName, ReactNode> = {
   receipt: <>
@@ -26,6 +26,10 @@ const paths: Record<AppIconName, ReactNode> = {
     <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9h17" />
   </>,
   check: <path d="m5 12 4.2 4.2L19 6.5" />,
+  camera: <>
+    <path d="M4 8.5h3l1.5-2h7l1.5 2h3a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-16A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5Z" />
+    <circle cx="12" cy="13.5" r="3.25" />
+  </>,
 };
 
 export default function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number }) {

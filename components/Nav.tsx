@@ -1,6 +1,7 @@
 import LogoutButton from '@/components/LogoutButton';
 import { createClient } from '@/lib/supabase/server';
 import MainNavLinks from '@/components/MainNavLinks';
+import ProfileAvatar from '@/components/ProfileAvatar';
 
 export default async function Nav() {
   const supabase = await createClient();
@@ -14,6 +15,15 @@ export default async function Nav() {
   ].find((value): value is string => typeof value === 'string' && value.trim().length > 0);
   const displayName = metadataName?.trim() || user?.email || 'ผู้ใช้งาน';
   const initial = String(displayName).trim().charAt(0).toUpperCase() || 'ผ';
+  const avatarPath = user && user.user_metadata?.avatar_path === `${user.id}/avatar`
+    ? user.user_metadata.avatar_path
+    : undefined;
+  const avatarUpdatedAt = typeof user?.user_metadata?.avatar_updated_at === 'string'
+    ? user.user_metadata.avatar_updated_at
+    : '';
+  const avatarUrl = avatarPath
+    ? `${supabase.storage.from('profile-avatars').getPublicUrl(avatarPath).data.publicUrl}?v=${encodeURIComponent(avatarUpdatedAt)}`
+    : undefined;
 
   return (
     <header className="app-header">
@@ -22,7 +32,7 @@ export default async function Nav() {
       </div>
       <MainNavLinks />
       <div className="account-area">
-        <div className="account-avatar" aria-hidden="true">{initial}</div>
+        <ProfileAvatar initial={initial} avatarUrl={avatarUrl} />
         <div className="account-copy" title={user?.email ?? displayName}>
           <span className="account-caption">บัญชีที่ใช้งาน</span>
           <strong>{displayName}</strong>

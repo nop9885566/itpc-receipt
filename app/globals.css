@@ -156,7 +156,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   padding: 24px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 5px 14px 5px 5px;
+  border-radius: 6px;
 }
 .card h2, .card h3 { margin: 0; font-size: 19px; line-height: 1.4; }
 .card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }

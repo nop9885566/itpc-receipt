@@ -24,10 +24,15 @@ export default async function InventoryPage() {
     <>
       <Nav />
       <main className="container">
-        <h2>จัดการสต็อกสินค้า</h2>
-        <p>ยอดเริ่มต้นเป็นศูนย์ กรุณาบันทึกรับสินค้าเข้าก่อนออกใบเสร็จ สินค้าที่ติดตามสต็อกจะแยกยอดตามไซส์เมื่อจำเป็น</p>
+        <div className="page-heading">
+          <div>
+            <h2>จัดการสต็อกสินค้า</h2>
+            <p>ตรวจสอบยอดคงเหลือและบันทึกรับเข้าหรือเบิกออก</p>
+          </div>
+        </div>
+        <p className="notice">ยอดเริ่มต้นเป็นศูนย์ กรุณาบันทึกรับสินค้าเข้าก่อนออกใบเสร็จ สินค้าที่ระบุไซส์จะแยกยอดตามไซส์</p>
         {loadError
-          ? <p className="error">โหลดข้อมูลสต็อกไม่สำเร็จ: {loadError.message}</p>
+          ? <p className="error" role="alert">โหลดข้อมูลสต็อกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</p>
           : <InventoryManager
             items={(items ?? []) as Item[]}
             balances={(balances ?? []) as StockBalance[]}

@@ -7,7 +7,7 @@ export const RECEIPT_CSS = `
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
 .rc-doc { font-family: 'Sarabun', 'TH Sarabun New', 'Noto Sans Thai', sans-serif; color: #111; font-size: 13px; font-weight: 400; line-height: 1.5; }
-.rc-page { position: relative; isolation: isolate; width: 210mm; height: 297mm; padding: 14mm 14mm 10mm; margin: 0 auto 8mm; background: #fff; overflow: hidden; page-break-after: always; }
+.rc-page { position: relative; isolation: isolate; width: 210mm; height: 297mm; padding: 14mm 14mm 10mm; margin: 0 auto 8mm; background: #fff; border: 1px solid #e6e1e5; overflow: hidden; page-break-after: always; }
 .rc-page:last-child { page-break-after: auto; }
 .rc-watermark-logo { position: absolute; z-index: -1; top: 44%; left: 50%; width: 170mm; height: 170mm; object-fit: contain; opacity: .7; transform: translate(-50%, -50%); pointer-events: none; }
 .rc-head { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: start; }
@@ -26,12 +26,12 @@ export const RECEIPT_CSS = `
 .rc-meta .no { text-align: right; font-weight: 400; }
 .rc-meta .no b { font-weight: 700; }
 .rc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.rc-table th { text-align: left; padding: 8px 4px 16px; border-top: 1px solid #888; border-bottom: 1px solid #888; font-weight: 400; }
+.rc-table th { text-align: left; padding: 8px 4px 16px; border-top: 1px solid #d8d1d8; border-bottom: 1px solid #d8d1d8; font-weight: 400; }
 .rc-table th.amt, .rc-table td.amt { text-align: right; }
 .rc-table td { padding: 2px 4px; vertical-align: top; }
 .rc-table td.n { width: 100px; text-align: center; }
 .rc-lines { height: 100px; }
-.rc-total { border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 5px 4px 6px; margin-top: 8px; }
+.rc-total { border-top: 1px solid #d8d1d8; border-bottom: 1px solid #d8d1d8; padding: 5px 4px 6px; margin-top: 8px; }
 .rc-total .row { display: flex; justify-content: space-between; font-weight: 400; }
 .rc-total .words-th { margin-left: 100px; }
 .rc-total .words-en { margin: 14px 0 0 100px; font-weight: 400; }
@@ -42,9 +42,9 @@ export const RECEIPT_CSS = `
 .rc-foot p { margin: 3px 0; }
 .rc-foot .note { padding-left: 15mm; text-indent: -15mm; }
 .rc-foot .translation { margin-left: 15mm; }
-.rc-watermark { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: 72px; font-weight: 700; color: rgba(200,0,0,.18); transform: rotate(-20deg); pointer-events: none; }
-@media screen { .rc-page { box-shadow: 0 1px 6px rgba(0,0,0,.25); } body { background: #e5e5e5; } }
-@media print { body { background: #fff; } .no-print { display: none !important; } .rc-page { margin: 0; box-shadow: none; } }
+.rc-watermark { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: 72px; font-weight: 700; color: rgba(180,120,135,.2); transform: rotate(-20deg); pointer-events: none; }
+@media screen { .rc-doc { overflow-x: auto; padding: 12px; } .rc-page { border-radius: 3px; } body { background: #f4f1ed; } }
+@media print { body { background: #fff; } .no-print { display: none !important; } .rc-page { margin: 0; border: 0; } }
 `;
 
 function Page({ r, copyLabel }: { r: Receipt; copyLabel: string }) {

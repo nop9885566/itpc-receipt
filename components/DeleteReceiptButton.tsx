@@ -18,7 +18,7 @@ export default function DeleteReceiptButton({ id, receiptNo }: { id: string; rec
     start(async () => {
       const result = await deleteReceipt(id, reason);
       if (result.error) {
-        setError(result.error);
+        setError('ลบใบเสร็จไม่สำเร็จ กรุณาตรวจสอบสิทธิ์แล้วลองอีกครั้ง');
         return;
       }
       router.refresh();
@@ -30,7 +30,7 @@ export default function DeleteReceiptButton({ id, receiptNo }: { id: string; rec
       <button type="button" className="btn danger" onClick={onClick} disabled={pending}>
         {pending ? 'กำลังลบ...' : 'ลบถาวร'}
       </button>
-      {error && <span className="error">{error}</span>}
+      {error && <span className="error" role="alert">{error}</span>}
     </>
   );
 }

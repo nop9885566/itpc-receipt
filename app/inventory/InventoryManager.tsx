@@ -13,6 +13,15 @@ const movementNames: Record<string, string> = {
   sale_delete: 'คืนจากการลบใบเสร็จ',
 };
 
+function friendlyStockError(message: string) {
+  if (message.includes('insufficient stock')) return 'จำนวนคงเหลือไม่พอ กรุณาตรวจสอบยอดสต็อกแล้วลองอีกครั้ง';
+  if (message.includes('size required')) return 'กรุณาระบุไซส์สินค้า';
+  if (message.includes('size is not used')) return 'สินค้านี้ไม่ต้องระบุไซส์';
+  if (message.includes('disabled for this item')) return 'สินค้านี้ปิดการติดตามสต็อกอยู่';
+  if (message.includes('quantity must')) return 'จำนวนต้องเป็นเลขตั้งแต่ 1 ขึ้นไป';
+  return 'บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้ติดต่อผู้ดูแลระบบ';
+}
+
 export default function InventoryManager(props: {
   items: Item[];
   balances: StockBalance[];
@@ -36,7 +45,7 @@ export default function InventoryManager(props: {
     startTransition(async () => {
       const result = await adjustStock({ itemId, size, quantity, action, note });
       if (result.error) {
-        setError(result.error);
+        setError(friendlyStockError(result.error));
         return;
       }
       setMessage(action === 'in' ? 'บันทึกรับสินค้าเข้าแล้ว' : 'บันทึกการเบิกสินค้าแล้ว');
@@ -51,7 +60,7 @@ export default function InventoryManager(props: {
     startTransition(async () => {
       const result = await setStockTracking(item.id, !item.stock_tracked);
       if (result.error) {
-        setError(result.error);
+        setError('เปลี่ยนการติดตามสต็อกไม่สำเร็จ กรุณาลองอีกครั้ง');
         return;
       }
       setMessage(`ปรับการติดตามสต็อกของ "${item.name}" แล้ว`);
@@ -62,7 +71,7 @@ export default function InventoryManager(props: {
   return (
     <>
       <div className="card">
-        <h3>รับเข้า / เบิกออก</h3>
+        <h3>บันทึกสต็อก</h3>
         <form onSubmit={submit}>
           <div className="grid2">
             <div>
@@ -118,12 +127,12 @@ export default function InventoryManager(props: {
           </button>
         </form>
         {message && <p>{message}</p>}
-        {error && <p className="error">{error}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
       </div>
 
       <div className="card">
         <h3>ยอดคงเหลือ</h3>
-        <table className="list">
+        <div className="table-scroll"><table className="list">
           <thead><tr><th>สินค้า</th><th>ไซส์</th><th className="r">คงเหลือ</th><th>การติดตาม</th></tr></thead>
           <tbody>
             {props.items.map((item) => {
@@ -150,14 +159,14 @@ export default function InventoryManager(props: {
                 </tr>
               ));
             })}
-            {!props.items.length && <tr><td colSpan={4}>ยังไม่มีรายการสินค้า</td></tr>}
+            {!props.items.length && <tr><td colSpan={4}>ยังไม่มีรายการสินค้า กรุณาติดต่อผู้ดูแลระบบ</td></tr>}
           </tbody>
-        </table>
+        </table></div>
       </div>
 
       <div className="card">
         <h3>ประวัติความเคลื่อนไหวล่าสุด</h3>
-        <table className="list">
+        <div className="table-scroll"><table className="list">
           <thead><tr><th>วันเวลา</th><th>สินค้า</th><th>ไซส์</th><th>รายการ</th><th className="r">จำนวน</th><th className="r">คงเหลือ</th><th>หมายเหตุ</th></tr></thead>
           <tbody>
             {props.movements.map((movement) => (
@@ -173,7 +182,7 @@ export default function InventoryManager(props: {
             ))}
             {!props.movements.length && <tr><td colSpan={7}>ยังไม่มีประวัติสต็อก</td></tr>}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </>
   );

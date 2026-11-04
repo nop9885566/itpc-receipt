@@ -9,18 +9,19 @@ import type { Receipt } from '@/lib/types';
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('itpc_receipt_receipts')
     .select('*, receipt_lines:itpc_receipt_receipt_lines(*)')
     .eq('id', id)
     .single();
+  if (error && error.code !== 'PGRST116') throw new Error('Unable to load receipt');
   if (!data) notFound();
   const receipt = data as Receipt;
 
   return (
     <>
       <div className="toolbar no-print">
-        <Link href="/receipts">← กลับ</Link>
+        <Link href="/receipts">กลับรายการ</Link>
         <a className="btn" href={`/receipts/${id}/pdf`}>ดาวน์โหลด PDF</a>
         <PrintButton />
         {receipt.status === 'issued' && <CancelButton id={id} />}

@@ -12,7 +12,7 @@ async function logout() {
 export default function Nav() {
   return (
     <nav className="nav">
-      <strong>ใบเสร็จรับเงิน</strong>
+      <strong>ระบบใบเสร็จ</strong>
       <Link href="/receipts">รายการใบเสร็จ</Link>
       <Link href="/receipts/new">ออกใบเสร็จใหม่</Link>
       <Link href="/inventory">จัดการสต็อก</Link>

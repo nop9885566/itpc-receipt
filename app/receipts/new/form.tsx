@@ -8,12 +8,21 @@ import { issueReceipt } from './actions';
 
 type Line = { key: number; item_id: number | ''; size: string; qty: number };
 
+function friendlyIssueError(message: string) {
+  if (message.includes('insufficient stock')) return 'สต็อกสินค้าไม่เพียงพอ กรุณาตรวจสอบจำนวนคงเหลือก่อนออกใบเสร็จ';
+  if (message.includes('size required')) return 'กรุณาระบุไซส์ของสินค้าที่เลือก';
+  if (message.includes('cashier not found')) return 'ไม่พบรายชื่อผู้รับเงิน กรุณาเลือกผู้รับเงินอีกครั้ง';
+  if (message.includes('item') && message.includes('not found')) return 'ไม่พบรายการสินค้าที่เลือก กรุณาโหลดหน้าใหม่';
+  return 'ออกใบเสร็จไม่สำเร็จ กรุณาตรวจสอบข้อมูลแล้วลองอีกครั้ง';
+}
+
 export default function NewReceiptForm(props: {
   items: Item[];
   itemLoadError?: string;
   stockBalances: StockBalance[];
   stockLoadError?: string;
   cashiers: Cashier[];
+  cashierLoadError?: string;
   students: Student[];
   studentLoadError?: string;
   today: string;
@@ -76,7 +85,7 @@ export default function NewReceiptForm(props: {
         paidAt, payerName, applicantCode, levelName, cashierId, series,
         lines: valid.map((l) => ({ item_id: l.item_id as number, size: l.size, qty: l.qty })),
       });
-      if (res.error) setError(res.error);
+      if (res.error) setError(friendlyIssueError(res.error));
       else router.push(`/receipts/${res.id}`);
     });
   }
@@ -84,9 +93,11 @@ export default function NewReceiptForm(props: {
   return (
     <form onSubmit={submit}>
       <div className="card">
-        {props.itemLoadError && <p className="error">โหลดรายการสินค้าไม่สำเร็จ: {props.itemLoadError}</p>}
-        {props.stockLoadError && <p className="error">โหลดสต็อกไม่สำเร็จ: {props.stockLoadError}</p>}
-        {props.studentLoadError && <p className="error">โหลดข้อมูลนักเรียนไม่สำเร็จ: {props.studentLoadError}</p>}
+        {props.itemLoadError && <p className="error" role="alert">{props.itemLoadError} กรุณาลองใหม่อีกครั้ง</p>}
+        {props.stockLoadError && <p className="error" role="alert">{props.stockLoadError} กรุณาลองใหม่อีกครั้ง</p>}
+        {props.cashierLoadError && <p className="error" role="alert">{props.cashierLoadError} กรุณาลองใหม่อีกครั้ง</p>}
+        {props.studentLoadError && <p className="error" role="alert">{props.studentLoadError}</p>}
+        {!items.length && !props.itemLoadError && <p className="notice">ยังไม่มีรายการสินค้า กรุณาแจ้งผู้ดูแลระบบ</p>}
         <div className="grid2">
           <div>
             <label htmlFor="student-search">ค้นหานักเรียน (รหัสหรือชื่อ)</label>
@@ -124,8 +135,8 @@ export default function NewReceiptForm(props: {
         {lines.map((l) => {
           const it = l.item_id ? byId.get(l.item_id) : undefined;
           return (
-            <div key={l.key} style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 90px 110px 40px', gap: 8, marginBottom: 8, alignItems: 'end' }}>
-              <div>
+            <div key={l.key} className="receipt-line">
+              <div className="line-item">
                 <label>รายการ</label>
                 <select value={l.item_id} onChange={(e) => update(l.key, { item_id: e.target.value ? Number(e.target.value) : '' })}>
                   <option value="">-- เลือกรายการ --</option>
@@ -152,21 +163,30 @@ export default function NewReceiptForm(props: {
                 <label>จำนวน</label>
                 <input type="number" min={1} value={l.qty} onChange={(e) => update(l.key, { qty: Math.max(1, Number(e.target.value) || 1) })} />
               </div>
-              <div style={{ textAlign: 'right', paddingBottom: 8 }}>{it ? money(it.price * l.qty) : '-'}</div>
-              <button type="button" className="btn secondary" onClick={() => setLines((ls) => ls.length > 1 ? ls.filter((x) => x.key !== l.key) : ls)}>×</button>
+              <div className="line-total">{it ? money(it.price * l.qty) : '-'}</div>
+              <button
+                type="button"
+                className="btn secondary"
+                aria-label="ลบรายการนี้"
+                onClick={() => setLines((ls) => ls.length > 1 ? ls.filter((x) => x.key !== l.key) : ls)}
+              >
+                ลบรายการ
+              </button>
             </div>
           );
         })}
         <button type="button" className="btn secondary" onClick={() => setLines((ls) => [...ls, { key: Math.max(...ls.map((x) => x.key)) + 1, item_id: '', size: '', qty: 1 }])}>
           + เพิ่มรายการ
         </button>
-        <h3 style={{ textAlign: 'right' }}>รวมเงิน {money(total)} บาท</h3>
-        <p style={{ fontSize: 12, color: '#666' }}>ราคาที่แสดงเป็นตัวอย่าง ระบบจะใช้ราคาจากตารางสินค้าฝั่งฐานข้อมูลตอนออกใบเสร็จจริง</p>
+        <h3 className="receipt-total">รวมเงิน {money(total)} บาท</h3>
+        <p className="muted-note">ราคาที่แสดงเป็นตัวอย่าง ระบบจะใช้ราคาจากฐานข้อมูลตอนออกใบเสร็จจริง</p>
       </div>
 
-      {error && <p className="error">{error}</p>}
-      <button className="btn" type="submit" disabled={pending || !cashierId}>{pending ? 'กำลังบันทึก...' : 'ออกใบเสร็จ'}</button>
-      {!cashierId && <p className="error">ยังไม่มีผู้รับเงินในระบบ (เพิ่มในตาราง cashiers)</p>}
+      {error && <p className="error" role="alert">{error}</p>}
+      <button className="btn" type="submit" disabled={pending || !cashierId || !!props.cashierLoadError || !!props.itemLoadError || !!props.stockLoadError}>
+        {pending ? 'กำลังบันทึก...' : 'ออกใบเสร็จ'}
+      </button>
+      {!cashierId && <p className="error">ยังไม่มีรายชื่อผู้รับเงิน กรุณาแจ้งผู้ดูแลระบบ</p>}
     </form>
   );
 }

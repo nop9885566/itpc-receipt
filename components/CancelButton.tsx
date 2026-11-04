@@ -14,14 +14,14 @@ export default function CancelButton({ id }: { id: string }) {
     if (!reason?.trim()) return;
     start(async () => {
       const res = await cancelReceipt(id, reason);
-      if (res.error) setError(res.error);
+      if (res.error) setError('ยกเลิกใบเสร็จไม่สำเร็จ กรุณาลองอีกครั้ง');
       else router.refresh();
     });
   }
   return (
     <>
       <button className="btn danger" onClick={onClick} disabled={pending}>ยกเลิกใบเสร็จ</button>
-      {error && <span className="error">{error}</span>}
+      {error && <span className="error" role="alert">{error}</span>}
     </>
   );
 }

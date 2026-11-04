@@ -9,7 +9,7 @@ export default async function NewReceiptPage() {
   const supabase = await createClient();
   const [
     { data: items, error: itemsError },
-    { data: cashiers },
+    { data: cashiers, error: cashiersError },
     { data: students, error: studentsError },
     { data: stockBalances, error: stockError },
   ] = await Promise.all([
@@ -22,15 +22,21 @@ export default async function NewReceiptPage() {
     <>
       <Nav />
       <div className="container">
-        <h2>ออกใบเสร็จใหม่</h2>
+        <div className="page-heading">
+          <div>
+            <h2>ออกใบเสร็จใหม่</h2>
+            <p>กรอกข้อมูลผู้ชำระและเลือกรายการที่ต้องการชำระ</p>
+          </div>
+        </div>
         <NewReceiptForm
           items={(items ?? []) as Item[]}
-          itemLoadError={itemsError?.message}
+          itemLoadError={itemsError ? 'ไม่สามารถโหลดรายการสินค้าได้' : undefined}
           stockBalances={(stockBalances ?? []) as StockBalance[]}
-          stockLoadError={stockError?.message}
+          stockLoadError={stockError ? 'ไม่สามารถโหลดข้อมูลสต็อกได้' : undefined}
           cashiers={(cashiers ?? []) as Cashier[]}
+          cashierLoadError={cashiersError ? 'ไม่สามารถโหลดรายชื่อผู้รับเงินได้' : undefined}
           students={(students ?? []) as Student[]}
-          studentLoadError={studentsError?.message ?? (!students?.length ? 'ยังไม่มีรายชื่อนักเรียนในฐานข้อมูล กรุณารัน migration 003_seed_students.sql' : undefined)}
+          studentLoadError={studentsError ? 'ไม่สามารถโหลดรายชื่อนักเรียนได้' : (!students?.length ? 'ยังไม่มีรายชื่อนักเรียน กรุณาติดต่อผู้ดูแลระบบ' : undefined)}
           today={todayBangkok()}
           defaultSeries={DEFAULT_SERIES}
         />

@@ -217,6 +217,9 @@ table.list tr:last-child td { border-bottom: 0; }
 table.list tbody tr:hover { background: #faf7fb; }
 table.list td.r, table.list th.r { text-align: right; }
 table.list td .btn { margin: 2px 0; }
+.receipt-list-card .form-actions { flex-wrap: nowrap; gap: 6px; }
+.receipt-list-card .form-actions .btn { margin: 0; padding-inline: 10px; white-space: nowrap; }
+.receipt-list-card .receipt-date { white-space: nowrap; }
 .badge { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--mint); color: var(--mint-ink); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .badge.cancelled { background: var(--peach); color: var(--peach-ink); }
 .error { margin: 12px 0; padding: 11px 14px; color: var(--pink-ink); background: var(--pink); border: 1px solid #f0dfe2; border-left: 3px solid #dcbcc2; border-radius: 3px; }

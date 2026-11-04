@@ -81,7 +81,7 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
                   {data.map((r) => (
                     <tr key={r.id}>
                       <td><Link className="table-primary-link" href={`/receipts/${r.id}`}>{r.receipt_no}</Link></td>
-                      <td>{bilingualDate(r.paid_at).split(' / ')[0]}</td>
+                      <td className="receipt-date">{bilingualDate(r.paid_at).split(' / ')[0]}</td>
                       <td>{r.payer_name}</td>
                       <td>{r.applicant_code || '-'}</td>
                       <td className="r">{money(r.total)}</td>

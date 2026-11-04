@@ -2,7 +2,7 @@
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="container">
+    <main className="container utility-page">
       <div className="empty-state" role="alert">
         <h2>ขออภัย โหลดข้อมูลไม่สำเร็จ</h2>
         <p>กรุณาลองอีกครั้ง หากยังพบปัญหาให้ติดต่อผู้ดูแลระบบ</p>

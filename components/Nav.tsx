@@ -26,11 +26,14 @@ export default async function Nav() {
     : undefined;
 
   return (
-    <header className="app-header">
+    <aside className="app-header">
       <div className="nav-brand">
         <span className="brand-logo" role="img" aria-label="ระบบใบเสร็จ Receipt System" />
       </div>
-      <MainNavLinks />
+      <div className="sidebar-navigation">
+        <span className="sidebar-caption">เมนูหลัก</span>
+        <MainNavLinks />
+      </div>
       <div className="account-area">
         <ProfileAvatar initial={initial} avatarUrl={avatarUrl} />
         <div className="account-copy" title={user?.email ?? displayName}>
@@ -40,6 +43,7 @@ export default async function Nav() {
         </div>
         <LogoutButton />
       </div>
-    </header>
+      <div className="sidebar-footnote">ระบบงานภายใน · ใบเสร็จและสต็อก</div>
+    </aside>
   );
 }

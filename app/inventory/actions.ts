@@ -7,7 +7,7 @@ export async function adjustStock(input: {
   itemId: number;
   size: string;
   quantity: number;
-  action: 'in' | 'out';
+  action: 'in' | 'out' | 'adjustment';
   note: string;
 }): Promise<{ error?: string }> {
   const supabase = await createClient();

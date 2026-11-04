@@ -2,6 +2,8 @@ import Nav from '@/components/Nav';
 import { createClient } from '@/lib/supabase/server';
 import type { Item, StockBalance, StockMovement } from '@/lib/types';
 import InventoryManager from './InventoryManager';
+import PageHeader from '@/components/PageHeader';
+import AppIcon from '@/components/AppIcon';
 
 export default async function InventoryPage() {
   const supabase = await createClient();
@@ -19,17 +21,33 @@ export default async function InventoryPage() {
       .limit(50),
   ]);
   const loadError = itemsError ?? balancesError ?? movementsError;
+  const trackedItems = (items ?? []).filter((item) => item.stock_tracked).length;
+  const totalUnits = (balances ?? []).reduce((total, balance) => total + balance.quantity, 0);
 
   return (
     <>
       <Nav />
       <main className="container">
-        <div className="page-heading">
-          <div>
-            <h2>จัดการสต็อกสินค้า</h2>
-            <p>ตรวจสอบยอดคงเหลือและบันทึกรับเข้าหรือเบิกออก</p>
+        <PageHeader
+          section="งานพัสดุ / คลังสินค้า"
+          title="สต็อกสินค้า"
+          description="ตรวจสอบยอดคงเหลือ บันทึกรับเข้า เบิกออก และปรับยอด"
+          icon="box"
+        />
+        {!loadError && <div className="summary-grid">
+          <div className="summary-card">
+            <span className="summary-icon"><AppIcon name="box" /></span>
+            <span className="summary-copy"><span className="summary-label">สินค้าที่ติดตาม</span><strong className="summary-value">{trackedItems}<span className="summary-unit">รายการ</span></strong></span>
           </div>
-        </div>
+          <div className="summary-card">
+            <span className="summary-icon"><AppIcon name="check" /></span>
+            <span className="summary-copy"><span className="summary-label">จำนวนคงเหลือรวม</span><strong className="summary-value">{totalUnits}<span className="summary-unit">ชิ้น</span></strong></span>
+          </div>
+          <div className="summary-card">
+            <span className="summary-icon"><AppIcon name="receipt" /></span>
+            <span className="summary-copy"><span className="summary-label">รายการเคลื่อนไหวล่าสุด</span><strong className="summary-value">{movements?.length ?? 0}<span className="summary-unit">รายการ</span></strong></span>
+          </div>
+        </div>}
         <p className="notice">ยอดเริ่มต้นเป็นศูนย์ กรุณาบันทึกรับสินค้าเข้าก่อนออกใบเสร็จ สินค้าที่ระบุไซส์จะแยกยอดตามไซส์</p>
         {loadError
           ? <p className="error" role="alert">โหลดข้อมูลสต็อกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</p>

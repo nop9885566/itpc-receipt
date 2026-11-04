@@ -4,6 +4,7 @@ import { todayBangkok } from '@/lib/format';
 import { DEFAULT_SERIES } from '@/lib/config';
 import type { Cashier, Item, StockBalance, Student } from '@/lib/types';
 import NewReceiptForm from './form';
+import PageHeader from '@/components/PageHeader';
 
 export default async function NewReceiptPage() {
   const supabase = await createClient();
@@ -22,12 +23,12 @@ export default async function NewReceiptPage() {
     <>
       <Nav />
       <div className="container">
-        <div className="page-heading">
-          <div>
-            <h2>ออกใบเสร็จใหม่</h2>
-            <p>กรอกข้อมูลผู้ชำระและเลือกรายการที่ต้องการชำระ</p>
-          </div>
-        </div>
+        <PageHeader
+          section="งานการเงิน / ออกใบเสร็จ"
+          title="ออกใบเสร็จใหม่"
+          description="กรอกข้อมูลผู้ชำระ เลือกรายการ และตรวจสอบยอดก่อนบันทึก"
+          icon="plus"
+        />
         <NewReceiptForm
           items={(items ?? []) as Item[]}
           itemLoadError={itemsError ? 'ไม่สามารถโหลดรายการสินค้าได้' : undefined}

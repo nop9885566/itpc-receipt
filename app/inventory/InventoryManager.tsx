@@ -191,7 +191,7 @@ export default function InventoryManager(props: {
             {pending ? 'กำลังบันทึก...' : 'บันทึกสต็อก'}
           </button>
         </form>
-        {message && <p>{message}</p>}
+        {message && <p className="success-message" role="status">{message}</p>}
         {error && <p className="error" role="alert">{error}</p>}
       </section>
 

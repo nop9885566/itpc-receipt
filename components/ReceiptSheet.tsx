@@ -137,6 +137,92 @@ function Page({ r, copyLabel }: { r: Receipt; copyLabel: string }) {
   );
 }
 
+function escapeHtml(value: string) {
+  const entities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  return value.replace(/[&<>"']/g, (char) => entities[char]);
+}
+
+function renderPageHtml(receipt: Receipt, copyLabel: string) {
+  const lines = [...receipt.receipt_lines].sort((a, b) => a.line_no - b.line_no);
+  const total = Number(receipt.total);
+  const text = (value: string | null | undefined) => escapeHtml(value ?? '');
+  const cancelledMark = receipt.status === 'cancelled'
+    ? '<div class="rc-watermark">ยกเลิก / CANCELLED</div>'
+    : '';
+
+  return `
+    <section class="rc-page">
+      <img class="rc-watermark-logo" src="${text(ISSUER.watermarkLogoPath)}" alt="" aria-hidden="true">
+      ${cancelledMark}
+      <div class="rc-head">
+        <div class="l">
+          <b>${text(ISSUER.nameTh)}</b>
+          ${ISSUER.addressTh.map((line) => `<div>${text(line)}</div>`).join('')}
+          <div>เลขประจำตัวผู้เสียภาษี ${text(ISSUER.taxId)}</div>
+        </div>
+        <img class="rc-logo" src="${text(ISSUER.logoPath)}" alt="">
+        <div class="r">
+          ${ISSUER.unitTh.map((line) => `<b>${text(line)}</b>`).join('')}
+          ${ISSUER.unitAddressTh.map((line) => `<div>${text(line)}</div>`).join('')}
+        </div>
+      </div>
+      <div class="rc-title">ใบเสร็จรับเงิน / Receipt<br>(${text(copyLabel)})</div>
+      <div class="rc-meta">
+        <div class="rc-meta-row payment">
+          <div class="lbl">วันที่ / Date of payment :</div>
+          <div>${text(bilingualDate(receipt.paid_at))}</div>
+          <div class="no"><b>เลขที่ / NO. ${text(receipt.receipt_no)}</b></div>
+        </div>
+        <div class="rc-meta-row payer">
+          <div class="lbl">ได้รับเงินจาก / Received from :</div>
+          <div class="rc-payer-details">
+            <div>${text(receipt.payer_name)}</div>
+            ${receipt.applicant_code ? `<div>เลขประจำตัวนักเรียน ${text(receipt.applicant_code)}</div>` : ''}
+          </div>
+          <div class="no">${text(receipt.level_name?.replace(/^ป\.\s*/, 'ระดับชั้นประถมศึกษา ') ?? '')}</div>
+        </div>
+        <div class="rc-meta-row print-date">
+          <div class="lbl">วันที่พิมพ์ / Print Date :</div>
+          <div>${text(bilingualDate(receipt.created_at.slice(0, 10)))}</div>
+          <div></div>
+        </div>
+      </div>
+      <table class="rc-table">
+        <thead>
+          <tr><th style="width:100px;white-space:nowrap">ลำดับ / NO.</th><th>รายการ / Receipt</th><th class="amt">จำนวนเงิน / Fees</th></tr>
+        </thead>
+        <tbody>
+          ${lines.map((line) => `<tr><td class="n">${text(String(line.line_no))}.</td><td>${text(line.description)}</td><td class="amt">${text(money(line.line_total))}</td></tr>`).join('')}
+          <tr><td colspan="3" class="rc-lines"></td></tr>
+        </tbody>
+      </table>
+      <div class="rc-total">
+        <div class="row"><span>รวมเงิน / Total :&nbsp;&nbsp;&nbsp;&nbsp;(${text(bahtTextTh(total))})</span><span>${text(money(total))}</span></div>
+        <div class="words-en">(${text(bahtTextEn(total))})</div>
+      </div>
+      <div class="rc-sign">
+        <img src="${text(ISSUER.signaturePath)}" alt="ลายเซ็นผู้รับเงิน">
+        <div>(${text(receipt.cashier_name_th)} / ${text(receipt.cashier_name_en)})</div>
+        <div>${text(receipt.cashier_title_th)} / ${text(receipt.cashier_title_en)}</div>
+        <div>วันที่ / Date : ${text(bilingualDate(receipt.paid_at))}</div>
+      </div>
+      <div class="rc-foot">
+        <p>ใบเสร็จรับเงินจะมีผลสมบูรณ์ต่อเมื่อได้รับชำระเงินเรียบร้อยแล้วและมีลายเซ็นของผู้รับเงินครบถ้วน<br>
+          The receipt will be valid with payment and the signature of the collector.</p>
+        <p class="note">หมายเหตุ : มหาวิทยาลัยเชียงใหม่ได้รับอนุมัติจากกรมบัญชีกลางให้ใช้ลายเซ็นอิเล็กทรอนิกส์ในใบเสร็จรับเงินค่าใช้จ่ายเกี่ยวกับการศึกษาได้
+          ตามหนังสือที่ กค 0422.3/ว.130 ลงวันที่ 19 พฤศจิกายน 2556</p>
+        <p class="translation">Refer to the comptroller General’s Department’s reference no.0422.3/c.130, dated 19 November 2013,<br>
+          Chiang Mai University has been authorized to place an electronic signature onto a receipt that is relate education.</p>
+      </div>
+    </section>`;
+}
+
 /** Two pages from one template: original + copy. */
 export function ReceiptSheets({ receipt }: { receipt: Receipt }) {
   return (
@@ -146,4 +232,8 @@ export function ReceiptSheets({ receipt }: { receipt: Receipt }) {
       <Page r={receipt} copyLabel="สำเนา / Copy" />
     </div>
   );
+}
+
+export function receiptSheetsHtml(receipt: Receipt) {
+  return `<div class="rc-doc"><style>${RECEIPT_CSS}</style>${renderPageHtml(receipt, 'ต้นฉบับ / Original')}${renderPageHtml(receipt, 'สำเนา / Copy')}</div>`;
 }

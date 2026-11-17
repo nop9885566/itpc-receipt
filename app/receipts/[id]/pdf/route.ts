@@ -13,7 +13,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
 
   const supabase = await createClient();
-  const { data } = await supabase.from('itpc_receipt_receipts').select('receipt_no').eq('id', id).single();
+  const { data, error } = await supabase.from('itpc_receipt_receipts').select('receipt_no').eq('id', id).single();
+  if (error && error.code !== 'PGRST116') {
+    console.error('Unable to load receipt for PDF', error);
+    return new NextResponse('Unable to load receipt', { status: 500 });
+  }
   if (!data) return new NextResponse('Not found', { status: 404 });
 
   const url = new URL(request.url);
@@ -29,18 +33,34 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
 
   const localChrome = process.env.CHROME_EXECUTABLE_PATH;
-  const browser = await puppeteer.launch({
-    executablePath: localChrome || (await chromium.executablePath()),
-    args: localChrome ? ['--no-sandbox'] : chromium.args,
-    headless: true,
-  });
+  let browser: Awaited<ReturnType<typeof puppeteer.launch>> | undefined;
   try {
+    browser = await puppeteer.launch({
+      executablePath: localChrome || (await chromium.executablePath()),
+      args: localChrome ? ['--no-sandbox'] : chromium.args,
+      headless: true,
+    });
     const page = await browser.newPage();
     await page.setCookie(...cookies);
-    // networkidle0 waits for Google Fonts + logo + signature images
-    await page.goto(target, { waitUntil: 'networkidle0' });
-    await page.evaluate(() => document.fonts.ready);
-    const pdf = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: true });
+    const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+    if (!response?.ok()) throw new Error(`Receipt page returned HTTP ${response?.status() ?? 'no response'}`);
+    await page.waitForSelector('.rc-page', { timeout: 5_000 });
+    await page.waitForFunction(
+      () => Array.from(document.images).every((image) => image.complete),
+      { timeout: 5_000 },
+    );
+    await page.evaluate(async () => {
+      await Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 5_000)),
+      ]);
+    });
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      waitForFonts: false,
+    });
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
@@ -48,7 +68,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         'Content-Disposition': `attachment; filename="receipt-${data.receipt_no}.pdf"`,
       },
     });
+  } catch (error) {
+    console.error('Unable to generate receipt PDF', error);
+    return new NextResponse('Unable to generate receipt PDF', { status: 500 });
   } finally {
-    await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (error) {
+        console.error('Unable to close PDF browser', error);
+      }
+    }
   }
 }

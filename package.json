@@ -10,11 +10,11 @@
     "test:baht": "tsx lib/bahttext.test.ts"
   },
   "dependencies": {
-    "@sparticuz/chromium": "^131.0.1",
+    "@sparticuz/chromium": "^148.0.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "next": "^15.1.0",
-    "puppeteer-core": "^23.11.1",
+    "puppeteer-core": "^24.43.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

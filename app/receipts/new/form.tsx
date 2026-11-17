@@ -27,7 +27,6 @@ export default function NewReceiptForm(props: {
   students: Student[];
   studentLoadError?: string;
   today: string;
-  defaultSeries: string;
 }) {
   const { items, cashiers, students } = props;
   const router = useRouter();
@@ -40,7 +39,6 @@ export default function NewReceiptForm(props: {
   const [studentSearch, setStudentSearch] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [cashierId, setCashierId] = useState(cashiers[0]?.id ?? '');
-  const [series, setSeries] = useState(props.defaultSeries);
   const [lines, setLines] = useState<Line[]>([{ key: 1, item_id: '', size: '', qty: 1 }]);
 
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
@@ -85,7 +83,7 @@ export default function NewReceiptForm(props: {
     }
     start(async () => {
       const res = await issueReceipt({
-        paidAt, payerName, applicantCode, levelName, cashierId, series,
+        paidAt, payerName, applicantCode, levelName, cashierId,
         lines: valid.map((l) => ({ item_id: l.item_id as number, size: l.size, qty: l.qty })),
       });
       if (res.error) setError(friendlyIssueError(res.error));
@@ -148,10 +146,6 @@ export default function NewReceiptForm(props: {
               <select id="cashier-id" value={cashierId} onChange={(e) => setCashierId(e.target.value)} required>
                 {cashiers.map((c) => <option key={c.id} value={c.id}>{c.name_th}</option>)}
               </select>
-            </div>
-            <div>
-              <label htmlFor="receipt-series">รหัสชุดเลขที่</label>
-              <input id="receipt-series" value={series} onChange={(e) => setSeries(e.target.value)} required />
             </div>
           </div>
         </section>

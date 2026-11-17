@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { RECEIPT_SERIES } from '@/lib/config';
 
 export type NewReceiptInput = {
   paidAt: string;
@@ -8,7 +9,6 @@ export type NewReceiptInput = {
   applicantCode: string;
   levelName: string;
   cashierId: string;
-  series: string;
   lines: { item_id: number; size: string; qty: number }[];
 };
 
@@ -20,7 +20,7 @@ export async function issueReceipt(input: NewReceiptInput): Promise<{ id?: strin
     p_applicant_code: input.applicantCode,
     p_level_name: input.levelName,
     p_cashier_id: input.cashierId,
-    p_series: input.series,
+    p_series: RECEIPT_SERIES,
     p_lines: input.lines,
   });
   if (error) return { error: error.message };

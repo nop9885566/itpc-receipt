@@ -1,7 +1,6 @@
 import Nav from '@/components/Nav';
 import { createClient } from '@/lib/supabase/server';
 import { todayBangkok } from '@/lib/format';
-import { DEFAULT_SERIES } from '@/lib/config';
 import type { Cashier, Item, StockBalance, Student } from '@/lib/types';
 import NewReceiptForm from './form';
 import PageHeader from '@/components/PageHeader';
@@ -39,7 +38,6 @@ export default async function NewReceiptPage() {
           students={(students ?? []) as Student[]}
           studentLoadError={studentsError ? 'ไม่สามารถโหลดรายชื่อนักเรียนได้' : (!students?.length ? 'ยังไม่มีรายชื่อนักเรียน กรุณาติดต่อผู้ดูแลระบบ' : undefined)}
           today={todayBangkok()}
-          defaultSeries={DEFAULT_SERIES}
         />
       </div>
     </>

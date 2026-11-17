@@ -10,4 +10,4 @@ export const ISSUER = {
   signaturePath: '/signature-transparent.png',
 };
 
-export const DEFAULT_SERIES = '25'; // the middle part of 2569-25-0145
+export const RECEIPT_SERIES = '99';
